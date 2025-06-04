@@ -177,22 +177,11 @@ if st.session_state.data is not None:
         numeric_cols = st.session_state.data.select_dtypes(include=[np.number]).columns.tolist()
         categorical_cols = st.session_state.data.select_dtypes(include=['object', 'category']).columns.tolist()
 
-        # --- Debugging: Check data and columns before plotting ---
-        st.write("Debug: Data head before plotting:")
-        st.dataframe(st.session_state.data.head())
-        st.write("Debug: Numeric columns:", numeric_cols)
-        st.write("Debug: Categorical columns:", categorical_cols)
-        # --- End Debugging ---
-
         if numeric_cols:
             st.markdown("**Distribution of Numeric Columns**")
             st.caption("These histograms show how your numeric data is distributed. Peaks indicate common values, while spread shows variability.")
             for col in numeric_cols:
                 try:
-                    st.write(f"Debug - Data for histogram of {col}:")
-                    value_counts = st.session_state.data[col].value_counts()
-                    st.write(f"Value counts for {col}:")
-                    st.dataframe(value_counts)
                     fig = px.histogram(st.session_state.data, x=col, title=f"Distribution of {col}")
                     st.plotly_chart(fig)
                 except Exception as e:
@@ -213,14 +202,14 @@ if st.session_state.data is not None:
         if categorical_cols:
             st.markdown("**Top Categories in Categorical Columns**")
             st.caption("These bar charts show the most common values in your categorical columns.")
-            for col in categorical_cols[:2]:
+            for col in categorical_cols:
                 try:
-                    vc = st.session_state.data[col].value_counts().head(10)
-                    fig_bar = px.bar(x=vc.index, y=vc.values, labels={'x': col, 'y': 'Count'}, title=f"Top Values in {col}")
-                    st.plotly_chart(
-                        fig_bar,
-                        use_container_width=True
-                    )
+                    # Get value counts
+                    value_counts = st.session_state.data[col].value_counts().head(10)
+                    
+                    # Create bar chart using Streamlit's native chart
+                    st.bar_chart(value_counts)
+                    
                 except Exception as e:
                      st.warning(f"Could not generate bar chart for {col}: {e}")
 
@@ -228,29 +217,10 @@ if st.session_state.data is not None:
         st.subheader("Box Plots for Numeric Columns")
         for col in numeric_cols:
             try:
-                st.write(f"Debug - Data for box plot of {col}:")
-                st.dataframe(st.session_state.data[[col]])
                 fig = px.box(st.session_state.data, y=col, title=f"Box Plot of {col}")
                 st.plotly_chart(fig)
             except Exception as e:
                 st.error(f"Error plotting box plot for {col}: {str(e)}")
-        
-        # Distribution of categorical columns
-        st.subheader("Distribution of Categorical Columns")
-        for col in categorical_cols:
-            try:
-                st.write(f"Debug - Data for bar chart of {col}:")
-                value_counts = st.session_state.data[col].value_counts()
-                st.write(f"Value counts for {col}:")
-                st.dataframe(value_counts)
-                # Create a DataFrame with proper column names
-                plot_df = value_counts.reset_index()
-                plot_df.columns = [col, 'count']  # Rename columns to be more clear
-                fig = px.bar(plot_df, x=col, y='count', 
-                           title=f"Distribution of {col}")
-                st.plotly_chart(fig)
-            except Exception as e:
-                st.error(f"Error plotting bar chart for {col}: {str(e)}")
 
     elif selected_section == "Data Cleaning":
         st.markdown("## 🧹 Data Cleaning")
@@ -392,12 +362,6 @@ if st.session_state.data is not None:
                             st.metric("MSE", f"{metrics['MSE']:.4f}")
                         with col3:
                             st.metric("RMSE", f"{metrics['RMSE']:.4f}")
-                        # Optional: Add prediction plot for each regression model
-                        # try:
-                        #     fig_pred = st.session_state.model_trainer.create_prediction_plot(model_name, 'regression')
-                        #     st.plotly_chart(fig_pred, use_container_width=True)
-                        # except Exception as e:
-                        #      st.warning(f"Could not create prediction plot for {model_name}: {e}")
 
                 elif st.session_state.model_trainer.problem_type == 'classification':
                     st.markdown("### Classification Results")
@@ -416,12 +380,6 @@ if st.session_state.data is not None:
                         st.session_state.model_trainer.create_confusion_matrix_plot('Logistic Regression'),
                         use_container_width=True
                     )
-                    # Optional: Add prediction plot for classification (e.g., probability histogram)
-                    # try:
-                    #     fig_pred = st.session_state.model_trainer.create_prediction_plot('Logistic Regression', 'classification')
-                    #     st.plotly_chart(fig_pred, use_container_width=True)
-                    # except Exception as e:
-                    #      st.warning(f"Could not create prediction plot for Logistic Regression: {e}")
 
                 st.success("Models trained successfully!")
 
