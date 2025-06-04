@@ -177,30 +177,51 @@ if st.session_state.data is not None:
         numeric_cols = st.session_state.data.select_dtypes(include=[np.number]).columns.tolist()
         categorical_cols = st.session_state.data.select_dtypes(include=['object', 'category']).columns.tolist()
 
+        # --- Debugging: Check data and columns before plotting ---
+        st.write("Debug: Data head before plotting:")
+        st.dataframe(st.session_state.data.head())
+        st.write("Debug: Numeric columns:", numeric_cols)
+        st.write("Debug: Categorical columns:", categorical_cols)
+        # --- End Debugging ---
+
         if numeric_cols:
             st.markdown("**Distribution of Numeric Columns**")
             st.caption("These histograms show how your numeric data is distributed. Peaks indicate common values, while spread shows variability.")
             for col in numeric_cols[:3]:
-                st.plotly_chart(
-                    px.histogram(st.session_state.data, x=col, nbins=20, title=f"Distribution of {col}"),
-                    use_container_width=True
-                )
+                try:
+                    fig_hist = px.histogram(st.session_state.data, x=col, nbins=20, title=f"Distribution of {col}")
+                    st.plotly_chart(
+                        fig_hist,
+                        use_container_width=True
+                    )
+                except Exception as e:
+                    st.warning(f"Could not generate histogram for {col}: {e}")
+
         if len(numeric_cols) > 1:
             st.markdown("**Correlation Heatmap**")
             st.caption("This heatmap shows how strongly numeric columns are related. Values close to 1 or -1 mean strong relationships.")
-            st.plotly_chart(
-                st.session_state.visualizer.create_correlation_heatmap(),
-                use_container_width=True
-            )
+            try:
+                fig_corr = st.session_state.visualizer.create_correlation_heatmap()
+                st.plotly_chart(
+                    fig_corr,
+                    use_container_width=True
+                )
+            except Exception as e:
+                 st.warning(f"Could not generate correlation heatmap: {e}")
+
         if categorical_cols:
             st.markdown("**Top Categories in Categorical Columns**")
             st.caption("These bar charts show the most common values in your categorical columns.")
             for col in categorical_cols[:2]:
-                vc = st.session_state.data[col].value_counts().head(10)
-                st.plotly_chart(
-                    px.bar(x=vc.index, y=vc.values, labels={'x': col, 'y': 'Count'}, title=f"Top Values in {col}"),
-                    use_container_width=True
-                )
+                try:
+                    vc = st.session_state.data[col].value_counts().head(10)
+                    fig_bar = px.bar(x=vc.index, y=vc.values, labels={'x': col, 'y': 'Count'}, title=f"Top Values in {col}")
+                    st.plotly_chart(
+                        fig_bar,
+                        use_container_width=True
+                    )
+                except Exception as e:
+                     st.warning(f"Could not generate bar chart for {col}: {e}")
 
     elif selected_section == "Data Cleaning":
         st.markdown("## 🧹 Data Cleaning")
