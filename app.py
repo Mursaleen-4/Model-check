@@ -187,15 +187,14 @@ if st.session_state.data is not None:
         if numeric_cols:
             st.markdown("**Distribution of Numeric Columns**")
             st.caption("These histograms show how your numeric data is distributed. Peaks indicate common values, while spread shows variability.")
-            for col in numeric_cols[:3]:
+            for col in numeric_cols:
                 try:
-                    fig_hist = px.histogram(st.session_state.data, x=col, nbins=20, title=f"Distribution of {col}")
-                    st.plotly_chart(
-                        fig_hist,
-                        use_container_width=True
-                    )
+                    st.write(f"Debug - Data for histogram of {col}:")
+                    st.dataframe(st.session_state.data[col].value_counts().reset_index().rename(columns={'index': col, col: 'count'}))
+                    fig = px.histogram(st.session_state.data, x=col, title=f"Distribution of {col}")
+                    st.plotly_chart(fig)
                 except Exception as e:
-                    st.warning(f"Could not generate histogram for {col}: {e}")
+                    st.error(f"Error plotting histogram for {col}: {str(e)}")
 
         if len(numeric_cols) > 1:
             st.markdown("**Correlation Heatmap**")
@@ -222,6 +221,29 @@ if st.session_state.data is not None:
                     )
                 except Exception as e:
                      st.warning(f"Could not generate bar chart for {col}: {e}")
+
+        # Box plots for numeric columns
+        st.subheader("Box Plots for Numeric Columns")
+        for col in numeric_cols:
+            try:
+                st.write(f"Debug - Data for box plot of {col}:")
+                st.dataframe(st.session_state.data[[col]])
+                fig = px.box(st.session_state.data, y=col, title=f"Box Plot of {col}")
+                st.plotly_chart(fig)
+            except Exception as e:
+                st.error(f"Error plotting box plot for {col}: {str(e)}")
+        
+        # Distribution of categorical columns
+        st.subheader("Distribution of Categorical Columns")
+        for col in categorical_cols:
+            try:
+                st.write(f"Debug - Data for bar chart of {col}:")
+                st.dataframe(st.session_state.data[col].value_counts().reset_index().rename(columns={'index': col, col: 'count'}))
+                fig = px.bar(st.session_state.data[col].value_counts().reset_index().rename(columns={'index': col, col: 'count'}),
+                           x=col, y='count', title=f"Distribution of {col}")
+                st.plotly_chart(fig)
+            except Exception as e:
+                st.error(f"Error plotting bar chart for {col}: {str(e)}")
 
     elif selected_section == "Data Cleaning":
         st.markdown("## 🧹 Data Cleaning")
