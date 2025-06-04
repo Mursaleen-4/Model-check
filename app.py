@@ -190,7 +190,9 @@ if st.session_state.data is not None:
             for col in numeric_cols:
                 try:
                     st.write(f"Debug - Data for histogram of {col}:")
-                    st.dataframe(st.session_state.data[col].value_counts().reset_index().rename(columns={'index': col, col: 'count'}))
+                    value_counts = st.session_state.data[col].value_counts()
+                    st.write(f"Value counts for {col}:")
+                    st.dataframe(value_counts)
                     fig = px.histogram(st.session_state.data, x=col, title=f"Distribution of {col}")
                     st.plotly_chart(fig)
                 except Exception as e:
@@ -238,9 +240,11 @@ if st.session_state.data is not None:
         for col in categorical_cols:
             try:
                 st.write(f"Debug - Data for bar chart of {col}:")
-                st.dataframe(st.session_state.data[col].value_counts().reset_index().rename(columns={'index': col, col: 'count'}))
-                fig = px.bar(st.session_state.data[col].value_counts().reset_index().rename(columns={'index': col, col: 'count'}),
-                           x=col, y='count', title=f"Distribution of {col}")
+                value_counts = st.session_state.data[col].value_counts()
+                st.write(f"Value counts for {col}:")
+                st.dataframe(value_counts)
+                fig = px.bar(value_counts.reset_index(), x='index', y=col, 
+                           title=f"Distribution of {col}")
                 st.plotly_chart(fig)
             except Exception as e:
                 st.error(f"Error plotting bar chart for {col}: {str(e)}")
