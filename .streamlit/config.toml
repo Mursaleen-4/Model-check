@@ -1,0 +1,5 @@
+[server]
+# Instruct Streamlit Cloud to use Python 3.9
+# This helps resolve dependency conflicts with some libraries on newer Python versions
+# Options: 3.9, 3.10, 3.11
+pythonVersion = "3.9" 
