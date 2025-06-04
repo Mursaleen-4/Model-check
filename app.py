@@ -243,7 +243,10 @@ if st.session_state.data is not None:
                 value_counts = st.session_state.data[col].value_counts()
                 st.write(f"Value counts for {col}:")
                 st.dataframe(value_counts)
-                fig = px.bar(value_counts.reset_index(), x='index', y=col, 
+                # Create a DataFrame with proper column names
+                plot_df = value_counts.reset_index()
+                plot_df.columns = [col, 'count']  # Rename columns to be more clear
+                fig = px.bar(plot_df, x=col, y='count', 
                            title=f"Distribution of {col}")
                 st.plotly_chart(fig)
             except Exception as e:
