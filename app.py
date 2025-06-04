@@ -182,7 +182,8 @@ if st.session_state.data is not None:
             st.caption("These histograms show how your numeric data is distributed. Peaks indicate common values, while spread shows variability.")
             for col in numeric_cols:
                 try:
-                    st.line_chart(st.session_state.data[col])
+                    fig = px.histogram(st.session_state.data, x=col, title=f"Distribution of {col}")
+                    st.plotly_chart(fig)
                 except Exception as e:
                     st.error(f"Error plotting histogram for {col}: {str(e)}")
 
@@ -190,8 +191,11 @@ if st.session_state.data is not None:
             st.markdown("**Correlation Heatmap**")
             st.caption("This heatmap shows how strongly numeric columns are related. Values close to 1 or -1 mean strong relationships.")
             try:
-                corr = st.session_state.data[numeric_cols].corr()
-                st.heatmap(corr)
+                fig_corr = st.session_state.visualizer.create_correlation_heatmap()
+                st.plotly_chart(
+                    fig_corr,
+                    use_container_width=True
+                )
             except Exception as e:
                  st.warning(f"Could not generate correlation heatmap: {e}")
 
@@ -213,7 +217,8 @@ if st.session_state.data is not None:
         st.subheader("Box Plots for Numeric Columns")
         for col in numeric_cols:
             try:
-                st.line_chart(st.session_state.data[col])
+                fig = px.box(st.session_state.data, y=col, title=f"Box Plot of {col}")
+                st.plotly_chart(fig)
             except Exception as e:
                 st.error(f"Error plotting box plot for {col}: {str(e)}")
 
