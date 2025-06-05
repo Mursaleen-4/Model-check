@@ -2,6 +2,10 @@
 
 An intelligent data analysis and machine learning dashboard built with Streamlit that provides automated data cleaning, analysis, and predictive modeling capabilities.
 
+## Live Demo
+
+Check out the live application at: [AI Data Analysis Dashboard](https://model-check.streamlit.app)
+
 ## Features
 
 - 📊 Interactive data upload and cleaning
